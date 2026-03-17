@@ -10,9 +10,9 @@ import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledFieldListContainer = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
   overflow-y: auto;
-  flex: 1;
 `;
 
 const StyledSectionLabel = styled.div`

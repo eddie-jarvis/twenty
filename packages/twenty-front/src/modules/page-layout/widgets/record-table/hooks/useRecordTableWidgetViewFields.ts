@@ -33,9 +33,7 @@ export const useRecordTableWidgetViewFields = (viewId: string) => {
           return null;
         }
       })
-      .filter(
-        (item): item is RecordTableWidgetViewFieldItem => item !== null,
-      );
+      .filter((item): item is RecordTableWidgetViewFieldItem => item !== null);
   }, [view, getFieldMetadataItemByIdOrThrow]);
 
   const toggleRecordTableWidgetFieldVisibility = useCallback(

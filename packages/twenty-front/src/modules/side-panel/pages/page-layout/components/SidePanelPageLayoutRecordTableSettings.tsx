@@ -1,6 +1,7 @@
 import { WidgetComponentInstanceContext } from '@/page-layout/widgets/states/contexts/WidgetComponentInstanceContext';
 import { RecordTableSettingsDataSourceSelect } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsDataSourceSelect';
 import { RecordTableSettingsFieldVisibility } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsFieldVisibility';
+import { RecordTableSettingsFilters } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsFilters';
 import { WidgetSettingsFooter } from '@/side-panel/pages/page-layout/components/WidgetSettingsFooter';
 import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
 import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
@@ -48,7 +49,16 @@ export const SidePanelPageLayoutRecordTableSettings = () => {
         <StyledSettingsContent>
           <RecordTableSettingsDataSourceSelect />
           {isDefined(viewId) && (
-            <RecordTableSettingsFieldVisibility viewId={viewId} />
+            <>
+              <RecordTableSettingsFieldVisibility viewId={viewId} />
+              {isDefined(widgetInEditMode.objectMetadataId) && (
+                <RecordTableSettingsFilters
+                  viewId={viewId}
+                  objectMetadataId={widgetInEditMode.objectMetadataId}
+                  widgetId={widgetInEditMode.id}
+                />
+              )}
+            </>
           )}
         </StyledSettingsContent>
         <WidgetSettingsFooter pageLayoutId={pageLayoutId} />
