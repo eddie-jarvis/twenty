@@ -1,6 +1,7 @@
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useCreateViewForRecordTableWidget } from '@/page-layout/widgets/record-table/hooks/useCreateViewForRecordTableWidget';
+import { useDeleteViewForRecordTableWidget } from '@/page-layout/widgets/record-table/hooks/useDeleteViewForRecordTableWidget';
 import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
 import { useUpdateCurrentWidgetConfig } from '@/side-panel/pages/page-layout/hooks/useUpdateCurrentWidgetConfig';
 import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
@@ -58,6 +59,9 @@ export const RecordTableSettingsDataSourceSelect = ({
   const { createViewForRecordTableWidget } =
     useCreateViewForRecordTableWidget(pageLayoutId);
 
+  const { deleteViewForRecordTableWidget } =
+    useDeleteViewForRecordTableWidget();
+
   const { getIcon } = useIcons();
 
   const objectsWithReadAccess = objectMetadataItems.filter(
@@ -84,9 +88,19 @@ export const RecordTableSettingsDataSourceSelect = ({
     getSearchableValues: (item) => [item.labelPlural, item.namePlural],
   });
 
+  const currentViewId =
+    widgetInEditMode?.configuration &&
+    'viewId' in widgetInEditMode.configuration
+      ? (widgetInEditMode.configuration.viewId as string | undefined)
+      : undefined;
+
   const handleSelectSource = async (newObjectMetadataItemId: string) => {
     if (currentObjectMetadataItemId === newObjectMetadataItemId) {
       return;
+    }
+
+    if (isDefined(currentViewId)) {
+      await deleteViewForRecordTableWidget(currentViewId);
     }
 
     updateCurrentWidgetConfig({
