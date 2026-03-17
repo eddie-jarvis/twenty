@@ -1,5 +1,6 @@
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
+import { useCreateViewForRecordTableWidget } from '@/page-layout/widgets/record-table/hooks/useCreateViewForRecordTableWidget';
 import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
 import { useUpdateCurrentWidgetConfig } from '@/side-panel/pages/page-layout/hooks/useUpdateCurrentWidgetConfig';
 import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
@@ -54,6 +55,9 @@ export const RecordTableSettingsDataSourceSelect = ({
   const { updateCurrentWidgetConfig } =
     useUpdateCurrentWidgetConfig(pageLayoutId);
 
+  const { createViewForRecordTableWidget } =
+    useCreateViewForRecordTableWidget(pageLayoutId);
+
   const { getIcon } = useIcons();
 
   const objectsWithReadAccess = objectMetadataItems.filter(
@@ -80,7 +84,7 @@ export const RecordTableSettingsDataSourceSelect = ({
     getSearchableValues: (item) => [item.labelPlural, item.namePlural],
   });
 
-  const handleSelectSource = (newObjectMetadataItemId: string) => {
+  const handleSelectSource = async (newObjectMetadataItemId: string) => {
     if (currentObjectMetadataItemId === newObjectMetadataItemId) {
       return;
     }
@@ -91,6 +95,14 @@ export const RecordTableSettingsDataSourceSelect = ({
         viewId: undefined,
       },
     });
+
+    const selectedObjectMetadataItem = objectMetadataItems.find(
+      (item) => item.id === newObjectMetadataItemId,
+    );
+
+    if (isDefined(selectedObjectMetadataItem)) {
+      await createViewForRecordTableWidget(selectedObjectMetadataItem);
+    }
 
     onObjectSelected?.();
   };
