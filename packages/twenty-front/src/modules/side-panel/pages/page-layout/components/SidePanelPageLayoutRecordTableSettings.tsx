@@ -1,8 +1,10 @@
 import { WidgetComponentInstanceContext } from '@/page-layout/widgets/states/contexts/WidgetComponentInstanceContext';
 import { RecordTableSettingsDataSourceSelect } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsDataSourceSelect';
+import { RecordTableSettingsFieldVisibility } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsFieldVisibility';
 import { WidgetSettingsFooter } from '@/side-panel/pages/page-layout/components/WidgetSettingsFooter';
 import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
 import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
+import { isWidgetConfigurationOfType } from '@/side-panel/pages/page-layout/utils/isWidgetConfigurationOfType';
 import { styled } from '@linaria/react';
 import { isDefined } from 'twenty-shared/utils';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
@@ -18,8 +20,8 @@ const StyledSettingsContent = styled.div`
   flex: 1;
   flex-direction: column;
   gap: ${themeCssVariables.spacing[3]};
-  padding: ${themeCssVariables.spacing[2]};
   overflow: hidden;
+  padding: ${themeCssVariables.spacing[2]};
 `;
 
 export const SidePanelPageLayoutRecordTableSettings = () => {
@@ -30,6 +32,14 @@ export const SidePanelPageLayoutRecordTableSettings = () => {
     return null;
   }
 
+  const { configuration } = widgetInEditMode;
+
+  const viewId =
+    isWidgetConfigurationOfType(configuration, 'RecordTableConfiguration') &&
+    isDefined(configuration.viewId)
+      ? configuration.viewId
+      : undefined;
+
   return (
     <StyledContainer>
       <WidgetComponentInstanceContext.Provider
@@ -37,6 +47,9 @@ export const SidePanelPageLayoutRecordTableSettings = () => {
       >
         <StyledSettingsContent>
           <RecordTableSettingsDataSourceSelect />
+          {isDefined(viewId) && (
+            <RecordTableSettingsFieldVisibility viewId={viewId} />
+          )}
         </StyledSettingsContent>
         <WidgetSettingsFooter pageLayoutId={pageLayoutId} />
       </WidgetComponentInstanceContext.Provider>

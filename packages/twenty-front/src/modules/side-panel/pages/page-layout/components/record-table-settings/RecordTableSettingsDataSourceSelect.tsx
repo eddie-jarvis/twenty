@@ -18,11 +18,11 @@ const StyledSearchInput = styled.input`
   background: ${themeCssVariables.background.transparent.lighter};
   border: 1px solid ${themeCssVariables.border.color.medium};
   border-radius: ${themeCssVariables.border.radius.sm};
+  box-sizing: border-box;
   color: ${themeCssVariables.font.color.primary};
   font-size: ${themeCssVariables.font.size.md};
   padding: ${themeCssVariables.spacing[2]};
   width: 100%;
-  box-sizing: border-box;
 
   &::placeholder {
     color: ${themeCssVariables.font.color.light};
@@ -31,9 +31,9 @@ const StyledSearchInput = styled.input`
 
 const StyledObjectList = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
   overflow-y: auto;
-  flex: 1;
 `;
 
 type RecordTableSettingsDataSourceSelectProps = {

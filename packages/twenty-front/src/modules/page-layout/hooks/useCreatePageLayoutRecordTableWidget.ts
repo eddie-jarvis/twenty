@@ -49,71 +49,72 @@ export const useCreatePageLayoutRecordTableWidget = (
 
   const store = useStore();
 
-  const createPageLayoutRecordTableWidget = useCallback((): PageLayoutWidget => {
-    const allTabLayouts = store.get(pageLayoutCurrentLayoutsState);
-    const pageLayoutDraggedArea = store.get(pageLayoutDraggedAreaState);
+  const createPageLayoutRecordTableWidget =
+    useCallback((): PageLayoutWidget => {
+      const allTabLayouts = store.get(pageLayoutCurrentLayoutsState);
+      const pageLayoutDraggedArea = store.get(pageLayoutDraggedAreaState);
 
-    if (!isDefined(activeTabId)) {
-      throw new Error(
-        'A tab must be selected to create a new record table widget',
+      if (!isDefined(activeTabId)) {
+        throw new Error(
+          'A tab must be selected to create a new record table widget',
+        );
+      }
+
+      const widgetId = uuidv4();
+      const recordTableSize = WIDGET_SIZES[WidgetType.RECORD_TABLE]!;
+      const defaultSize = recordTableSize.default;
+      const minimumSize = recordTableSize.minimum;
+      const position = getDefaultWidgetPosition(
+        pageLayoutDraggedArea,
+        defaultSize,
+        minimumSize,
       );
-    }
 
-    const widgetId = uuidv4();
-    const recordTableSize = WIDGET_SIZES[WidgetType.RECORD_TABLE]!;
-    const defaultSize = recordTableSize.default;
-    const minimumSize = recordTableSize.minimum;
-    const position = getDefaultWidgetPosition(
-      pageLayoutDraggedArea,
-      defaultSize,
-      minimumSize,
-    );
+      const newWidget = createDefaultRecordTableWidget(
+        widgetId,
+        activeTabId,
+        'Record Table',
+        {
+          row: position.y,
+          column: position.x,
+          rowSpan: position.h,
+          columnSpan: position.w,
+        },
+      );
 
-    const newWidget = createDefaultRecordTableWidget(
-      widgetId,
+      const newLayout = {
+        i: widgetId,
+        x: position.x,
+        y: position.y,
+        w: position.w,
+        h: position.h,
+        minW: minimumSize.w,
+        minH: minimumSize.h,
+      };
+
+      const updatedLayouts = getUpdatedTabLayouts(
+        allTabLayouts,
+        activeTabId,
+        newLayout,
+      );
+
+      store.set(pageLayoutCurrentLayoutsState, updatedLayouts);
+
+      store.set(pageLayoutDraftState, (prev) => ({
+        ...prev,
+        tabs: addWidgetToTab(prev.tabs, activeTabId, newWidget),
+      }));
+
+      store.set(pageLayoutDraggedAreaState, null);
+
+      return newWidget;
+    }, [
       activeTabId,
-      'Record Table',
-      {
-        row: position.y,
-        column: position.x,
-        rowSpan: position.h,
-        columnSpan: position.w,
-      },
-    );
-
-    const newLayout = {
-      i: widgetId,
-      x: position.x,
-      y: position.y,
-      w: position.w,
-      h: position.h,
-      minW: minimumSize.w,
-      minH: minimumSize.h,
-    };
-
-    const updatedLayouts = getUpdatedTabLayouts(
-      allTabLayouts,
-      activeTabId,
-      newLayout,
-    );
-
-    store.set(pageLayoutCurrentLayoutsState, updatedLayouts);
-
-    store.set(pageLayoutDraftState, (prev) => ({
-      ...prev,
-      tabs: addWidgetToTab(prev.tabs, activeTabId, newWidget),
-    }));
-
-    store.set(pageLayoutDraggedAreaState, null);
-
-    return newWidget;
-  }, [
-    activeTabId,
-    pageLayoutCurrentLayoutsState,
-    pageLayoutDraftState,
-    pageLayoutDraggedAreaState,
-    store,
-  ]);
+      pageLayoutCurrentLayoutsState,
+      pageLayoutDraftState,
+      pageLayoutDraggedAreaState,
+      store,
+    ]);
 
   return { createPageLayoutRecordTableWidget };
 };

@@ -35,7 +35,13 @@ export const StandaloneRecordTableViewLoadEffect = ({
 
     loadRecordIndexStates(view, objectMetadataItem);
     setLastLoadedViewId(viewId);
-  }, [viewId, lastLoadedViewId, view, objectMetadataItem, loadRecordIndexStates]);
+  }, [
+    viewId,
+    lastLoadedViewId,
+    view,
+    objectMetadataItem,
+    loadRecordIndexStates,
+  ]);
 
   return null;
 };
