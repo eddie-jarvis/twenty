@@ -142,9 +142,7 @@ export const useSaveRecordTableWidgetFiltersToView = (
     );
     await performViewFilterGroupAPIUpdate(viewFilterGroupsToUpdate);
     await performViewFilterGroupAPIDelete(
-      viewFilterGroupsToDelete.map(
-        (viewFilterGroup) => viewFilterGroup.id,
-      ),
+      viewFilterGroupsToDelete.map((viewFilterGroup) => viewFilterGroup.id),
     );
   }, [
     store,

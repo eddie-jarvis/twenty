@@ -7,7 +7,7 @@ import { type View } from '@/views/types/View';
 import { getFilterableFields } from '@/views/utils/getFilterableFields';
 import { mapViewFilterGroupsToRecordFilterGroups } from '@/views/utils/mapViewFilterGroupsToRecordFilterGroups';
 import { mapViewFiltersToFilters } from '@/views/utils/mapViewFiltersToFilters';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 
 type RecordTableSettingsFiltersInitializeStateEffectProps = {
@@ -30,19 +30,17 @@ export const RecordTableSettingsFiltersInitializeStateEffect = ({
   const { setAdvancedFilterDropdownStates } =
     useSetAdvancedFilterDropdownStates();
 
+  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
+
   const [
     shouldSetAdvancedFilterDropdownStates,
     setShouldSetAdvancedFilterDropdownStates,
   ] = useState(false);
 
-  const lastInitializedViewId = useRef<string | null>(null);
-
   useEffect(() => {
-    if (lastInitializedViewId.current === view.id) {
+    if (hasInitializedFilters) {
       return;
     }
-
-    lastInitializedViewId.current = view.id;
 
     const filterableFields = getFilterableFields(objectMetadataItem);
     const recordFilters = mapViewFiltersToFilters(
@@ -59,9 +57,11 @@ export const RecordTableSettingsFiltersInitializeStateEffect = ({
     }
 
     setShouldSetAdvancedFilterDropdownStates(true);
+    setHasInitializedFilters(true);
   }, [
     view,
     objectMetadataItem,
+    hasInitializedFilters,
     setCurrentRecordFilters,
     setCurrentRecordFilterGroups,
   ]);

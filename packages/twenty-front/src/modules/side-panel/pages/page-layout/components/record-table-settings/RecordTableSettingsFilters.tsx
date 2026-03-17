@@ -48,9 +48,7 @@ export const RecordTableSettingsFilters = ({
       <RecordFilterGroupsComponentInstanceContext.Provider
         value={{ instanceId }}
       >
-        <RecordFiltersComponentInstanceContext.Provider
-          value={{ instanceId }}
-        >
+        <RecordFiltersComponentInstanceContext.Provider value={{ instanceId }}>
           <AdvancedFilterSidePanelContainer
             onUpdate={saveRecordTableWidgetFiltersToView}
             objectMetadataItem={objectMetadataItem}
