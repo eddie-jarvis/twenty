@@ -1,0 +1,120 @@
+import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
+import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
+import { useUpdateCurrentWidgetConfig } from '@/side-panel/pages/page-layout/hooks/useUpdateCurrentWidgetConfig';
+import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
+import { t } from '@lingui/core/macro';
+import { useState } from 'react';
+import { isDefined } from 'twenty-shared/utils';
+import { useIcons } from 'twenty-ui/display';
+import { MenuItemSelect } from 'twenty-ui/navigation';
+import { filterBySearchQuery } from '~/utils/filterBySearchQuery';
+import { styled } from '@linaria/react';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
+
+const StyledSearchInput = styled.input`
+  background: ${themeCssVariables.background.transparent.lighter};
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: ${themeCssVariables.border.radius.sm};
+  color: ${themeCssVariables.font.color.primary};
+  font-size: ${themeCssVariables.font.size.md};
+  padding: ${themeCssVariables.spacing[2]};
+  width: 100%;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: ${themeCssVariables.font.color.light};
+  }
+`;
+
+const StyledObjectList = styled.div`
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex: 1;
+`;
+
+type RecordTableSettingsDataSourceSelectProps = {
+  onObjectSelected?: () => void;
+};
+
+export const RecordTableSettingsDataSourceSelect = ({
+  onObjectSelected,
+}: RecordTableSettingsDataSourceSelectProps) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const { objectMetadataItems } = useObjectMetadataItems();
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
+  const { pageLayoutId } = usePageLayoutIdFromContextStoreTargetedRecord();
+  const { widgetInEditMode } = useWidgetInEditMode(pageLayoutId);
+
+  const currentObjectMetadataItemId = widgetInEditMode?.objectMetadataId as
+    | string
+    | undefined;
+
+  const { updateCurrentWidgetConfig } =
+    useUpdateCurrentWidgetConfig(pageLayoutId);
+
+  const { getIcon } = useIcons();
+
+  const objectsWithReadAccess = objectMetadataItems.filter(
+    (objectMetadataItem) => {
+      const objectPermissions =
+        objectPermissionsByObjectMetadataId[objectMetadataItem.id];
+
+      return (
+        isDefined(objectPermissions) &&
+        objectPermissions.canReadObjectRecords &&
+        objectMetadataItem.isActive &&
+        !objectMetadataItem.isSystem
+      );
+    },
+  );
+
+  const sortedObjects = objectsWithReadAccess.sort((first, second) =>
+    first.labelPlural.localeCompare(second.labelPlural),
+  );
+
+  const filteredObjects = filterBySearchQuery({
+    items: sortedObjects,
+    searchQuery,
+    getSearchableValues: (item) => [item.labelPlural, item.namePlural],
+  });
+
+  const handleSelectSource = (newObjectMetadataItemId: string) => {
+    if (currentObjectMetadataItemId === newObjectMetadataItemId) {
+      return;
+    }
+
+    updateCurrentWidgetConfig({
+      objectMetadataId: newObjectMetadataItemId,
+      configToUpdate: {
+        viewId: undefined,
+      },
+    });
+
+    onObjectSelected?.();
+  };
+
+  return (
+    <>
+      <StyledSearchInput
+        autoFocus
+        type="text"
+        placeholder={t`Search objects`}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        value={searchQuery}
+      />
+      <StyledObjectList>
+        {filteredObjects.map((objectMetadataItem) => (
+          <MenuItemSelect
+            key={objectMetadataItem.id}
+            text={objectMetadataItem.labelPlural}
+            selected={currentObjectMetadataItemId === objectMetadataItem.id}
+            LeftIcon={getIcon(objectMetadataItem.icon)}
+            onClick={() => handleSelectSource(objectMetadataItem.id)}
+          />
+        ))}
+      </StyledObjectList>
+    </>
+  );
+};
