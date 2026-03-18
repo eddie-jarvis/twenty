@@ -1,11 +1,11 @@
-import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
-import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
 import { RecordTableSettingsFilters } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsFilters';
+import { usePageLayoutIdFromContextStore } from '@/side-panel/pages/page-layout/hooks/usePageLayoutIdFromContextStore';
+import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
 import { isDefined } from 'twenty-shared/utils';
 import { WidgetConfigurationType } from '~/generated-metadata/graphql';
 
 export const SidePanelRecordTableFilterSubPage = () => {
-  const { pageLayoutId } = usePageLayoutIdFromContextStoreTargetedRecord();
+  const { pageLayoutId } = usePageLayoutIdFromContextStore();
   const { widgetInEditMode } = useWidgetInEditMode(pageLayoutId);
 
   if (!isDefined(widgetInEditMode)) {
@@ -24,10 +24,7 @@ export const SidePanelRecordTableFilterSubPage = () => {
       ? (configuration.viewId as string)
       : undefined;
 
-  if (
-    !isDefined(viewId) ||
-    !isDefined(widgetInEditMode.objectMetadataId)
-  ) {
+  if (!isDefined(viewId) || !isDefined(widgetInEditMode.objectMetadataId)) {
     return null;
   }
 
@@ -35,7 +32,6 @@ export const SidePanelRecordTableFilterSubPage = () => {
     <RecordTableSettingsFilters
       viewId={viewId}
       objectMetadataId={widgetInEditMode.objectMetadataId}
-      widgetId={widgetInEditMode.id}
     />
   );
 };

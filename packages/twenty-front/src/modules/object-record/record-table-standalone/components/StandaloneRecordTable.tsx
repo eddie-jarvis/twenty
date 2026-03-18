@@ -1,6 +1,7 @@
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { type RecordUpdateHookParams } from '@/object-record/record-field/ui/contexts/FieldContext';
 import { useRecordIndexContextOrThrow } from '@/object-record/record-index/contexts/RecordIndexContext';
+import { StandaloneRecordTableSetReadOnlyColumnHeadersEffect } from '@/object-record/record-table-standalone/components/StandaloneRecordTableSetReadOnlyColumnHeadersEffect';
 import { RecordTableWithWrappers } from '@/object-record/record-table/components/RecordTableWithWrappers';
 
 export const StandaloneRecordTable = () => {
@@ -18,11 +19,16 @@ export const StandaloneRecordTable = () => {
   };
 
   return (
-    <RecordTableWithWrappers
-      recordTableId={recordIndexId}
-      objectNameSingular={objectNameSingular}
-      viewBarId={viewBarInstanceId}
-      updateRecordMutation={updateEntity}
-    />
+    <>
+      <StandaloneRecordTableSetReadOnlyColumnHeadersEffect
+        recordTableId={recordIndexId}
+      />
+      <RecordTableWithWrappers
+        recordTableId={recordIndexId}
+        objectNameSingular={objectNameSingular}
+        viewBarId={viewBarInstanceId}
+        updateRecordMutation={updateEntity}
+      />
+    </>
   );
 };

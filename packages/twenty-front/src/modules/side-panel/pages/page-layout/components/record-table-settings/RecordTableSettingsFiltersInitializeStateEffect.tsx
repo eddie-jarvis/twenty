@@ -2,6 +2,7 @@ import { type ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataI
 import { useSetAdvancedFilterDropdownStates } from '@/object-record/advanced-filter/hooks/useSetAdvancedFilterDropdownAllRowsStates';
 import { currentRecordFilterGroupsComponentState } from '@/object-record/record-filter-group/states/currentRecordFilterGroupsComponentState';
 import { currentRecordFiltersComponentState } from '@/object-record/record-filter/states/currentRecordFiltersComponentState';
+import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useSetAtomComponentState } from '@/ui/utilities/state/jotai/hooks/useSetAtomComponentState';
 import { type View } from '@/views/types/View';
 import { getFilterableFields } from '@/views/utils/getFilterableFields';
@@ -30,12 +31,11 @@ export const RecordTableSettingsFiltersInitializeStateEffect = ({
   const { setAdvancedFilterDropdownStates } =
     useSetAdvancedFilterDropdownStates();
 
-  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
+  const currentRecordFilters = useAtomComponentStateValue(
+    currentRecordFiltersComponentState,
+  );
 
-  const [
-    shouldSetAdvancedFilterDropdownStates,
-    setShouldSetAdvancedFilterDropdownStates,
-  ] = useState(false);
+  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
 
   useEffect(() => {
     if (hasInitializedFilters) {
@@ -56,7 +56,6 @@ export const RecordTableSettingsFiltersInitializeStateEffect = ({
       );
     }
 
-    setShouldSetAdvancedFilterDropdownStates(true);
     setHasInitializedFilters(true);
   }, [
     view,
@@ -67,11 +66,12 @@ export const RecordTableSettingsFiltersInitializeStateEffect = ({
   ]);
 
   useEffect(() => {
-    if (shouldSetAdvancedFilterDropdownStates) {
-      setAdvancedFilterDropdownStates();
-      setShouldSetAdvancedFilterDropdownStates(false);
+    if (!hasInitializedFilters) {
+      return;
     }
-  }, [shouldSetAdvancedFilterDropdownStates, setAdvancedFilterDropdownStates]);
+
+    setAdvancedFilterDropdownStates();
+  }, [currentRecordFilters, hasInitializedFilters, setAdvancedFilterDropdownStates]);
 
   return null;
 };

@@ -2,17 +2,17 @@ import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadat
 import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useCreateViewForRecordTableWidget } from '@/page-layout/widgets/record-table/hooks/useCreateViewForRecordTableWidget';
 import { useDeleteViewForRecordTableWidget } from '@/page-layout/widgets/record-table/hooks/useDeleteViewForRecordTableWidget';
-import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
+import { usePageLayoutIdFromContextStore } from '@/side-panel/pages/page-layout/hooks/usePageLayoutIdFromContextStore';
 import { useUpdateCurrentWidgetConfig } from '@/side-panel/pages/page-layout/hooks/useUpdateCurrentWidgetConfig';
 import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
+import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 import { useIcons } from 'twenty-ui/display';
 import { MenuItemSelect } from 'twenty-ui/navigation';
-import { filterBySearchQuery } from '~/utils/filterBySearchQuery';
-import { styled } from '@linaria/react';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { filterBySearchQuery } from '~/utils/filterBySearchQuery';
 
 const StyledSearchInput = styled.input`
   background: ${themeCssVariables.background.transparent.lighter};
@@ -46,7 +46,7 @@ export const RecordTableSettingsDataSourceSelect = ({
   const [searchQuery, setSearchQuery] = useState('');
   const { objectMetadataItems } = useObjectMetadataItems();
   const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
-  const { pageLayoutId } = usePageLayoutIdFromContextStoreTargetedRecord();
+  const { pageLayoutId } = usePageLayoutIdFromContextStore();
   const { widgetInEditMode } = useWidgetInEditMode(pageLayoutId);
 
   const currentObjectMetadataItemId = widgetInEditMode?.objectMetadataId as

@@ -7,6 +7,7 @@ import { RecordTableDraggableTr } from '@/object-record/record-table/record-tabl
 import { RecordTableFieldsCells } from '@/object-record/record-table/record-table-row/components/RecordTableFieldsCells';
 import { RecordTableRowArrowKeysEffect } from '@/object-record/record-table/record-table-row/components/RecordTableRowArrowKeysEffect';
 import { RecordTableRowHotkeyEffect } from '@/object-record/record-table/record-table-row/components/RecordTableRowHotkeyEffect';
+import { isRecordTableColumnHeadersReadOnlyComponentState } from '@/object-record/record-table/states/isRecordTableColumnHeadersReadOnlyComponentState';
 import { isRecordTableRowFocusActiveComponentState } from '@/object-record/record-table/states/isRecordTableRowFocusActiveComponentState';
 import { isRecordTableRowFocusedComponentFamilyState } from '@/object-record/record-table/states/isRecordTableRowFocusedComponentFamilyState';
 import { RecordTableRowVirtualizedSkeleton } from '@/object-record/record-table/virtualization/components/RecordTableRowVirtualizedSkeleton';
@@ -26,6 +27,10 @@ export const RecordTableRowVirtualizedFullData = ({
   realIndex,
 }: RecordTableRowVirtualizedFullDataProps) => {
   const { recordTableId } = useRecordTableContextOrThrow();
+
+  const isReadOnly = useAtomComponentStateValue(
+    isRecordTableColumnHeadersReadOnlyComponentState,
+  );
 
   const isRecordTableRowFocused = useAtomComponentFamilyStateValue(
     isRecordTableRowFocusedComponentFamilyState,

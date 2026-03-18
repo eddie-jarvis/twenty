@@ -3,6 +3,7 @@ export enum SidePanelSubPages {
   PageLayoutFieldsLayout = 'page-layout-fields-layout',
   PageLayoutRecordTableFields = 'page-layout-record-table-fields',
   PageLayoutRecordTableFilter = 'page-layout-record-table-filter',
+  PageLayoutRecordTableSort = 'page-layout-record-table-sort',
   NewSidebarItemViewObjectPicker = 'new-sidebar-item-view-object-picker',
   NewSidebarItemViewPicker = 'new-sidebar-item-view-picker',
   NewSidebarItemViewSystemPicker = 'new-sidebar-item-view-system-picker',

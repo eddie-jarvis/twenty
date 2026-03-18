@@ -5,8 +5,9 @@ import { SidePanelGroup } from '@/side-panel/components/SidePanelGroup';
 import { SidePanelList } from '@/side-panel/components/SidePanelList';
 import { useSidePanelSubPageHistory } from '@/side-panel/hooks/useSidePanelSubPageHistory';
 import { RecordTableDataSourceDropdownContent } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableDataSourceDropdownContent';
+import { RecordTableFieldsDropdownContent } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableFieldsDropdownContent';
 import { WidgetSettingsFooter } from '@/side-panel/pages/page-layout/components/WidgetSettingsFooter';
-import { usePageLayoutIdFromContextStoreTargetedRecord } from '@/side-panel/pages/page-layout/hooks/usePageLayoutFromContextStoreTargetedRecord';
+import { usePageLayoutIdFromContextStore } from '@/side-panel/pages/page-layout/hooks/usePageLayoutIdFromContextStore';
 import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
 import { SidePanelSubPages } from '@/side-panel/types/SidePanelSubPages';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
@@ -14,7 +15,12 @@ import { SelectableListItem } from '@/ui/layout/selectable-list/components/Selec
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { isDefined } from 'twenty-shared/utils';
-import { IconDatabase, IconEye, IconFilter } from 'twenty-ui/display';
+import {
+  IconArrowsSort,
+  IconDatabase,
+  IconEye,
+  IconFilter,
+} from 'twenty-ui/display';
 import { WidgetConfigurationType } from '~/generated-metadata/graphql';
 
 const StyledContainer = styled.div`
@@ -31,7 +37,7 @@ const StyledSettingsContainer = styled.div`
 `;
 
 export const SidePanelPageLayoutRecordTableSettings = () => {
-  const { pageLayoutId } = usePageLayoutIdFromContextStoreTargetedRecord();
+  const { pageLayoutId } = usePageLayoutIdFromContextStore();
   const { widgetInEditMode } = useWidgetInEditMode(pageLayoutId);
   const { navigateToSidePanelSubPage } = useSidePanelSubPageHistory();
 
@@ -44,22 +50,28 @@ export const SidePanelPageLayoutRecordTableSettings = () => {
   const isRecordTableConfiguration =
     configuration.configurationType === WidgetConfigurationType.RECORD_TABLE;
 
-  const hasViewId =
+  const viewId =
     isRecordTableConfiguration &&
     'viewId' in configuration &&
-    isDefined(configuration.viewId);
+    isDefined(configuration.viewId)
+      ? (configuration.viewId as string)
+      : undefined;
+
+  const hasViewId = isDefined(viewId);
 
   const selectableItemIds = [
     'record-table-source',
-    ...(hasViewId ? ['record-table-fields', 'record-table-filter'] : []),
+    ...(hasViewId
+      ? ['record-table-fields', 'record-table-filter', 'record-table-sort']
+      : []),
   ];
-
-  const handleFieldsClick = () => {
-    navigateToSidePanelSubPage(SidePanelSubPages.PageLayoutRecordTableFields);
-  };
 
   const handleFilterClick = () => {
     navigateToSidePanelSubPage(SidePanelSubPages.PageLayoutRecordTableFilter);
+  };
+
+  const handleSortClick = () => {
+    navigateToSidePanelSubPage(SidePanelSubPages.PageLayoutRecordTableSort);
   };
 
   return (
@@ -91,16 +103,21 @@ export const SidePanelPageLayoutRecordTableSettings = () => {
               </SelectableListItem>
               {hasViewId && (
                 <>
-                  <SelectableListItem
-                    itemId="record-table-fields"
-                    onEnter={handleFieldsClick}
-                  >
-                    <CommandMenuItem
-                      id="record-table-fields"
-                      label={t`Fields`}
+                  <SelectableListItem itemId="record-table-fields">
+                    <CommandMenuItemDropdown
                       Icon={IconEye}
+                      label={t`Fields`}
+                      id="record-table-fields"
+                      dropdownId="record-table-fields"
+                      dropdownComponents={
+                        <RecordTableFieldsDropdownContent
+                          viewId={viewId}
+                          objectMetadataId={widgetInEditMode.objectMetadataId!}
+                          dropdownId="record-table-fields"
+                        />
+                      }
+                      dropdownPlacement="bottom-end"
                       hasSubMenu
-                      onClick={handleFieldsClick}
                       contextualTextPosition="right"
                     />
                   </SelectableListItem>
@@ -114,6 +131,19 @@ export const SidePanelPageLayoutRecordTableSettings = () => {
                       Icon={IconFilter}
                       hasSubMenu
                       onClick={handleFilterClick}
+                      contextualTextPosition="right"
+                    />
+                  </SelectableListItem>
+                  <SelectableListItem
+                    itemId="record-table-sort"
+                    onEnter={handleSortClick}
+                  >
+                    <CommandMenuItem
+                      id="record-table-sort"
+                      label={t`Sort`}
+                      Icon={IconArrowsSort}
+                      hasSubMenu
+                      onClick={handleSortClick}
                       contextualTextPosition="right"
                     />
                   </SelectableListItem>

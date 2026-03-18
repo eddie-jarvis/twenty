@@ -4,6 +4,7 @@ import {
   getRecordTableColumnWidthInlineStyles,
   RecordTableStyleWrapper,
 } from '@/object-record/record-table/components/RecordTableStyleWrapper';
+import { isRecordTableColumnHeadersReadOnlyComponentState } from '@/object-record/record-table/states/isRecordTableColumnHeadersReadOnlyComponentState';
 import { RecordTableWidthEffect } from '@/object-record/record-table/components/RecordTableWidthEffect';
 import { RECORD_TABLE_HTML_ID } from '@/object-record/record-table/constants/RecordTableHtmlId';
 import { useRecordTableContextOrThrow } from '@/object-record/record-table/contexts/RecordTableContext';
@@ -18,6 +19,7 @@ import { RECORD_INDEX_DRAG_SELECT_BOUNDARY_CLASS } from '@/ui/utilities/drag-sel
 import { useAtomComponentFamilyStateCallbackState } from '@/ui/utilities/state/jotai/hooks/useAtomComponentFamilyStateCallbackState';
 import { useAtomComponentSelectorCallbackState } from '@/ui/utilities/state/jotai/hooks/useAtomComponentSelectorCallbackState';
 import { useAtomComponentStateCallbackState } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateCallbackState';
+import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { styled } from '@linaria/react';
 import { useStore } from 'jotai';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -128,9 +130,17 @@ export const RecordTableContent = ({
     [store, isSomeCellInEditMode, recordTableHoverPositionCallbackState],
   );
 
+  const isReadOnlyLeftColumns = useAtomComponentStateValue(
+    isRecordTableColumnHeadersReadOnlyComponentState,
+  );
+
   const columnWidthStyles = useMemo(
-    () => getRecordTableColumnWidthInlineStyles(visibleRecordFields),
-    [visibleRecordFields],
+    () =>
+      getRecordTableColumnWidthInlineStyles(
+        visibleRecordFields,
+        isReadOnlyLeftColumns,
+      ),
+    [visibleRecordFields, isReadOnlyLeftColumns],
   );
 
   return (

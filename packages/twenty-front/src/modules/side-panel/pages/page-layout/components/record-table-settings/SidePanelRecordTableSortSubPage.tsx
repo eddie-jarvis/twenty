@@ -1,10 +1,11 @@
-import { RecordTableSettingsFieldVisibility } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsFieldVisibility';
+import { RecordTableSettingsSorts } from '@/side-panel/pages/page-layout/components/record-table-settings/RecordTableSettingsSorts';
 import { usePageLayoutIdFromContextStore } from '@/side-panel/pages/page-layout/hooks/usePageLayoutIdFromContextStore';
+
 import { useWidgetInEditMode } from '@/side-panel/pages/page-layout/hooks/useWidgetInEditMode';
 import { isDefined } from 'twenty-shared/utils';
 import { WidgetConfigurationType } from '~/generated-metadata/graphql';
 
-export const SidePanelRecordTableFieldsSubPage = () => {
+export const SidePanelRecordTableSortSubPage = () => {
   const { pageLayoutId } = usePageLayoutIdFromContextStore();
   const { widgetInEditMode } = useWidgetInEditMode(pageLayoutId);
 
@@ -24,9 +25,14 @@ export const SidePanelRecordTableFieldsSubPage = () => {
       ? (configuration.viewId as string)
       : undefined;
 
-  if (!isDefined(viewId)) {
+  if (!isDefined(viewId) || !isDefined(widgetInEditMode.objectMetadataId)) {
     return null;
   }
 
-  return <RecordTableSettingsFieldVisibility viewId={viewId} />;
+  return (
+    <RecordTableSettingsSorts
+      viewId={viewId}
+      objectMetadataId={widgetInEditMode.objectMetadataId}
+    />
+  );
 };
