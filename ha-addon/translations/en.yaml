@@ -1,0 +1,10 @@
+configuration:
+  APP_SECRET:
+    name: Application Secret
+    description: Random secret string for JWT signing. Change this to a unique random value.
+  SERVER_URL:
+    name: Server URL
+    description: External URL for the CRM (e.g., http://192.168.1.50:3000). Leave empty to auto-detect.
+  PG_DATABASE_PASSWORD:
+    name: Database Password
+    description: Password for the internal PostgreSQL database.
