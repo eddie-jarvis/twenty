@@ -1,0 +1,44 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Twenty CRM - Server
+# ==============================================================================
+
+# Source environment
+set -a
+# shellcheck source=/dev/null
+source /etc/twenty-env
+set +a
+
+# Wait for PostgreSQL to be ready
+bashio::log.info "Waiting for PostgreSQL..."
+for i in $(seq 1 60); do
+    if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
+        bashio::log.info "PostgreSQL is ready."
+        break
+    fi
+    if [ "$i" -eq 60 ]; then
+        bashio::log.error "PostgreSQL did not become ready in time."
+        exit 1
+    fi
+    sleep 1
+done
+
+# Wait for Redis to be ready
+bashio::log.info "Waiting for Redis..."
+for i in $(seq 1 30); do
+    if redis-cli -h 127.0.0.1 ping > /dev/null 2>&1; then
+        bashio::log.info "Redis is ready."
+        break
+    fi
+    if [ "$i" -eq 30 ]; then
+        bashio::log.error "Redis did not become ready in time."
+        exit 1
+    fi
+    sleep 1
+done
+
+cd /opt/twenty/packages/twenty-server || exit 1
+
+bashio::log.info "Starting Twenty CRM server on port ${NODE_PORT}..."
+exec node dist/src/main.js

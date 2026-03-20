@@ -1,0 +1,3 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+exec redis-server --dir /data/redis --appendonly yes --protected-mode no --bind 127.0.0.1

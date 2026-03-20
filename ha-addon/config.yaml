@@ -1,0 +1,29 @@
+name: "Twenty CRM"
+description: "Open-source personal CRM for managing your network"
+version: "1.0.0"
+slug: "twenty-crm"
+url: "https://github.com/eddie-jarvis/twenty"
+arch:
+  - amd64
+  - aarch64
+ports:
+  "3000/tcp": 3000
+ports_description:
+  "3000/tcp": "Twenty CRM Web UI"
+map:
+  - config:rw
+  - share:rw
+startup: application
+boot: auto
+ingress: true
+ingress_port: 3000
+panel_icon: "mdi:account-group"
+panel_title: "Twenty CRM"
+schema:
+  APP_SECRET: str
+  SERVER_URL: str?
+  PG_DATABASE_PASSWORD: str?
+options:
+  APP_SECRET: "change-me-to-a-random-string"
+  SERVER_URL: ""
+  PG_DATABASE_PASSWORD: "twentycrm"

@@ -1,0 +1,11 @@
+build_from:
+  amd64: ghcr.io/hassio-addons/base:19.0.0
+  aarch64: ghcr.io/hassio-addons/base:19.0.0
+args:
+  BUILD_ARCH: "{arch}"
+  BUILD_DATE: "{date}"
+  BUILD_DESCRIPTION: "Open-source personal CRM for managing your network"
+  BUILD_NAME: "Twenty CRM"
+  BUILD_REF: "{ref}"
+  BUILD_REPOSITORY: "{repository}"
+  BUILD_VERSION: "{version}"
