@@ -1,12 +1,13 @@
 name: "Twenty CRM"
 description: "Open-source personal CRM for managing your network"
-version: "1.2.1"
+version: "1.2.2"
 slug: "twenty-crm"
 url: "https://github.com/eddie-jarvis/twenty"
 arch:
   - amd64
   - aarch64
 init: false
+host_network: true
 ports:
   "3000/tcp": 3000
 ports_description:
