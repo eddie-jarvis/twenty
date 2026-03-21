@@ -1,9 +1,7 @@
 ARG BUILD_FROM
-FROM twentycrm/twenty:latest AS twenty
-
 FROM ${BUILD_FROM}
 
-# Install PostgreSQL 16 (pinned to match Twenty's docker-compose), Redis
+# Install PostgreSQL 16 and Redis
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg2 lsb-release wget ca-certificates curl jq \
     && wget --quiet -O /usr/share/keyrings/pgdg.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
@@ -13,15 +11,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-16 \
     postgresql-client-16 \
     redis-server \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 22 from nodesource
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# Install yarn (Twenty uses it)
+RUN npm install -g yarn
 
-# Copy Twenty application from official image
-COPY --from=twenty /app /opt/twenty
+# Copy the ENTIRE Twenty image filesystem to get all deps
+COPY --from=twentycrm/twenty:latest /app /opt/twenty
 
 # Create data directories
 RUN mkdir -p /data/postgres /data/redis /data/storage \
@@ -29,9 +27,8 @@ RUN mkdir -p /data/postgres /data/redis /data/storage \
     && mkdir -p /run/postgresql \
     && chown -R postgres:postgres /run/postgresql
 
-# Symlink storage so Twenty finds it where it expects
-RUN mkdir -p /opt/twenty/packages/twenty-server \
-    && ln -sf /data/storage /opt/twenty/packages/twenty-server/.local-storage
+# Symlink storage
+RUN ln -sf /data/storage /opt/twenty/packages/twenty-server/.local-storage 2>/dev/null; true
 
 # Copy rootfs (s6 services + init scripts)
 COPY rootfs /
