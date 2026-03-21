@@ -1,12 +1,17 @@
 ARG BUILD_FROM
 FROM twentycrm/twenty:latest AS twenty
 
-FROM ghcr.io/hassio-addons/debian-base:9.1.0
+FROM ${BUILD_FROM}
 
-# Install PostgreSQL, Redis
+# Install PostgreSQL 16 (pinned to match Twenty's docker-compose), Redis
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    postgresql \
-    postgresql-client \
+    gnupg2 lsb-release wget ca-certificates \
+    && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    postgresql-16 \
+    postgresql-client-16 \
     redis-server \
     curl \
     jq \
@@ -19,9 +24,7 @@ COPY --from=twenty /app /opt/twenty
 RUN mkdir -p /data/postgres /data/redis /data/storage \
     && chown -R postgres:postgres /data/postgres \
     && mkdir -p /run/postgresql \
-    && chown -R postgres:postgres /run/postgresql \
-    && mkdir -p /var/run/redis \
-    && chown -R redis:redis /var/run/redis
+    && chown -R postgres:postgres /run/postgresql
 
 # Symlink storage so Twenty finds it where it expects
 RUN mkdir -p /opt/twenty/packages/twenty-server \
@@ -35,11 +38,9 @@ RUN find /etc/s6-overlay/s6-rc.d -name "run" -exec chmod +x {} \; 2>/dev/null; \
     find /etc/cont-init.d -name "*.sh" -exec chmod +x {} \; 2>/dev/null; \
     true
 
-# Build arguments
 ARG BUILD_ARCH
 ARG BUILD_VERSION
 
-# Labels
 LABEL \
     io.hass.name="Twenty CRM" \
     io.hass.description="Open-source personal CRM" \

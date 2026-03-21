@@ -46,13 +46,22 @@ EOF
 mkdir -p /data/postgres /data/redis /data/storage /run/postgresql
 chown -R postgres:postgres /data/postgres /run/postgresql
 
+# Check for incompatible PG version and clean up
+if [ -f /data/postgres/PG_VERSION ]; then
+    PG_DATA_VER=$(cat /data/postgres/PG_VERSION)
+    if [ "$PG_DATA_VER" != "16" ]; then
+        bashio::log.warning "PostgreSQL data was version ${PG_DATA_VER}, need 16. Reinitializing..."
+        rm -rf /data/postgres/*
+    fi
+fi
+
 # Initialize PostgreSQL if first run
 if [ ! -f /data/postgres/PG_VERSION ]; then
     bashio::log.info "First run — initializing PostgreSQL..."
 
     # Initialize the database cluster
     su - postgres -s /bin/bash -c \
-        "/usr/lib/postgresql/*/bin/initdb -D /data/postgres --auth=trust --encoding=UTF8 --locale=C"
+        "/usr/lib/postgresql/16/bin/initdb -D /data/postgres --auth=trust --encoding=UTF8 --locale=C"
 
     # Configure PostgreSQL
     cat >> /data/postgres/postgresql.conf <<PGCONF
@@ -71,7 +80,7 @@ PGHBA
 
     # Start PostgreSQL temporarily to create user and database
     su - postgres -s /bin/bash -c \
-        "/usr/lib/postgresql/*/bin/pg_ctl -D /data/postgres -l /tmp/pg_init.log start"
+        "/usr/lib/postgresql/16/bin/pg_ctl -D /data/postgres -l /tmp/pg_init.log start"
 
     # Wait for PostgreSQL to be ready
     for i in $(seq 1 30); do
@@ -89,7 +98,7 @@ PGHBA
 
     # Stop temporary PostgreSQL
     su - postgres -s /bin/bash -c \
-        "/usr/lib/postgresql/*/bin/pg_ctl -D /data/postgres stop"
+        "/usr/lib/postgresql/16/bin/pg_ctl -D /data/postgres stop"
 
     bashio::log.info "PostgreSQL initialized successfully."
 else
