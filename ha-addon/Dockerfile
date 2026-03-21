@@ -1,7 +1,7 @@
 ARG BUILD_FROM
 FROM twentycrm/twenty:latest AS twenty
 
-FROM ghcr.io/hassio-addons/debian-base:7.9.0
+FROM ghcr.io/hassio-addons/debian-base:9.1.0
 
 # Install PostgreSQL, Redis
 RUN apt-get update && apt-get install -y --no-install-recommends \

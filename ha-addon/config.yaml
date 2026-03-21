@@ -1,6 +1,6 @@
 name: "Twenty CRM"
 description: "Open-source personal CRM for managing your network"
-version: "1.0.3"
+version: "1.0.4"
 slug: "twenty-crm"
 url: "https://github.com/eddie-jarvis/twenty"
 arch:
