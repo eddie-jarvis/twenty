@@ -52,7 +52,7 @@ if [ ! -f /data/postgres/PG_VERSION ]; then
 
     # Initialize the database cluster
     su - postgres -s /bin/bash -c \
-        "initdb -D /data/postgres --auth=trust --encoding=UTF8 --locale=C"
+        "/usr/lib/postgresql/*/bin/initdb -D /data/postgres --auth=trust --encoding=UTF8 --locale=C"
 
     # Configure PostgreSQL
     cat >> /data/postgres/postgresql.conf <<PGCONF
@@ -71,7 +71,7 @@ PGHBA
 
     # Start PostgreSQL temporarily to create user and database
     su - postgres -s /bin/bash -c \
-        "pg_ctl -D /data/postgres -l /tmp/pg_init.log start"
+        "/usr/lib/postgresql/*/bin/pg_ctl -D /data/postgres -l /tmp/pg_init.log start"
 
     # Wait for PostgreSQL to be ready
     for i in $(seq 1 30); do
@@ -89,7 +89,7 @@ PGHBA
 
     # Stop temporary PostgreSQL
     su - postgres -s /bin/bash -c \
-        "pg_ctl -D /data/postgres stop"
+        "/usr/lib/postgresql/*/bin/pg_ctl -D /data/postgres stop"
 
     bashio::log.info "PostgreSQL initialized successfully."
 else

@@ -1,20 +1,16 @@
 ARG BUILD_FROM
 FROM twentycrm/twenty:latest AS twenty
 
-FROM ${BUILD_FROM}
+FROM ghcr.io/hassio-addons/debian-base:7.9.0
 
-# Install PostgreSQL 16, Redis, Node.js
-RUN apk add --no-cache \
-    postgresql16 \
-    postgresql16-client \
-    postgresql16-contrib \
-    redis \
-    nodejs-current \
-    npm \
-    yarn \
+# Install PostgreSQL, Redis
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql \
+    postgresql-client \
+    redis-server \
     curl \
-    bash \
-    jq
+    jq \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy Twenty application from official image
 COPY --from=twenty /app /opt/twenty
@@ -23,7 +19,9 @@ COPY --from=twenty /app /opt/twenty
 RUN mkdir -p /data/postgres /data/redis /data/storage \
     && chown -R postgres:postgres /data/postgres \
     && mkdir -p /run/postgresql \
-    && chown -R postgres:postgres /run/postgresql
+    && chown -R postgres:postgres /run/postgresql \
+    && mkdir -p /var/run/redis \
+    && chown -R redis:redis /var/run/redis
 
 # Symlink storage so Twenty finds it where it expects
 RUN mkdir -p /opt/twenty/packages/twenty-server \
