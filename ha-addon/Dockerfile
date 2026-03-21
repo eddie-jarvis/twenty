@@ -15,10 +15,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     redis-server \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Node.js runtime from Twenty image
-COPY --from=twenty /usr/local/bin/node /usr/local/bin/node
-COPY --from=twenty /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs 2>/dev/null; true
+# Install Node.js 22 from nodesource
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy Twenty application from official image
 COPY --from=twenty /app /opt/twenty
