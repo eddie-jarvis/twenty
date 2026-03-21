@@ -42,6 +42,10 @@ STORAGE_TYPE=local
 STORAGE_LOCAL_PATH=/opt/twenty/packages/twenty-server/.local-storage
 EOF
 
+# Ensure data directories exist with correct permissions (runtime, not build time)
+mkdir -p /data/postgres /data/redis /data/storage /run/postgresql
+chown -R postgres:postgres /data/postgres /run/postgresql
+
 # Initialize PostgreSQL if first run
 if [ ! -f /data/postgres/PG_VERSION ]; then
     bashio::log.info "First run — initializing PostgreSQL..."
