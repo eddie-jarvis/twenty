@@ -5,16 +5,14 @@ FROM ${BUILD_FROM}
 
 # Install PostgreSQL 16 (pinned to match Twenty's docker-compose), Redis
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gnupg2 lsb-release wget ca-certificates \
-    && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+    gnupg2 lsb-release wget ca-certificates curl jq \
+    && wget --quiet -O /usr/share/keyrings/pgdg.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    && echo "deb [signed-by=/usr/share/keyrings/pgdg.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
     postgresql-16 \
     postgresql-client-16 \
     redis-server \
-    curl \
-    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Twenty application from official image
