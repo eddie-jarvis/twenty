@@ -1,25 +1,22 @@
 ARG BUILD_FROM
-FROM ${BUILD_FROM}
+FROM twentycrm/twenty:latest AS twenty
 
-# Install PostgreSQL 16 and Redis
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gnupg2 lsb-release wget ca-certificates curl jq \
-    && wget --quiet -O /usr/share/keyrings/pgdg.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
-    && echo "deb [signed-by=/usr/share/keyrings/pgdg.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-    postgresql-16 \
-    postgresql-client-16 \
-    redis-server \
+FROM ghcr.io/hassio-addons/base:19.0.0
+
+# Install PostgreSQL 16, Redis, Node.js 22
+RUN apk add --no-cache \
+    postgresql16 \
+    postgresql16-client \
+    postgresql16-contrib \
+    redis \
     nodejs \
     npm \
-    && rm -rf /var/lib/apt/lists/*
+    curl \
+    bash \
+    jq
 
-# Install yarn (Twenty uses it)
-RUN npm install -g yarn
-
-# Copy the ENTIRE Twenty image filesystem to get all deps
-COPY --from=twentycrm/twenty:latest /app /opt/twenty
+# Copy Twenty application from official image (also Alpine/musl based)
+COPY --from=twenty /app /opt/twenty
 
 # Create data directories
 RUN mkdir -p /data/postgres /data/redis /data/storage \
