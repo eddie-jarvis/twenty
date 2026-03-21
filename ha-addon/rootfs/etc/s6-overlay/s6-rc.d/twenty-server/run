@@ -13,7 +13,7 @@ set +a
 # Wait for PostgreSQL to be ready
 bashio::log.info "Waiting for PostgreSQL..."
 for i in $(seq 1 60); do
-    if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
+    if pg_isready -h localhost -p 5432 -U twenty > /dev/null 2>&1; then
         bashio::log.info "PostgreSQL is ready."
         break
     fi
@@ -41,4 +41,4 @@ done
 cd /opt/twenty/packages/twenty-server || exit 1
 
 bashio::log.info "Starting Twenty CRM server on port ${NODE_PORT}..."
-exec node dist/src/main.js
+exec node dist/main

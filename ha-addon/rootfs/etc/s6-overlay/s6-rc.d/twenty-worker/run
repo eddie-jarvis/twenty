@@ -31,4 +31,4 @@ done
 cd /opt/twenty/packages/twenty-server || exit 1
 
 bashio::log.info "Starting Twenty CRM worker..."
-exec yarn worker:prod
+exec node dist/queue-worker/queue-worker
