@@ -16,12 +16,12 @@ export DISABLE_CRON_JOBS_REGISTRATION=true
 
 # Wait for the server to be healthy
 bashio::log.info "Waiting for Twenty server to be healthy..."
-for i in $(seq 1 120); do
+for i in $(seq 1 240); do
     if curl -sf http://localhost:3000/healthz > /dev/null 2>&1; then
         bashio::log.info "Twenty server is healthy."
         break
     fi
-    if [ "$i" -eq 120 ]; then
+    if [ "$i" -eq 240 ]; then
         bashio::log.warning "Twenty server health check timed out, starting worker anyway..."
         break
     fi
@@ -31,4 +31,4 @@ done
 cd /opt/twenty/packages/twenty-server || exit 1
 
 bashio::log.info "Starting Twenty CRM worker..."
-exec node dist/queue-worker/queue-worker
+exec /opt/twenty/entrypoint.sh node dist/queue-worker/queue-worker

@@ -1,7 +1,7 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Twenty CRM - Server
+# Twenty CRM - Server (with migrations via official entrypoint)
 # ==============================================================================
 
 # Source environment
@@ -40,13 +40,6 @@ done
 
 cd /opt/twenty/packages/twenty-server || exit 1
 
-# Run database migrations on first start
-if [ ! -f /data/.migrations_done ]; then
-    bashio::log.info "Running database migrations (first start)..."
-    npx -y typeorm migration:run -d dist/database/typeorm/core/core.datasource 2>&1 || true
-    touch /data/.migrations_done
-    bashio::log.info "Migrations complete."
-fi
-
-bashio::log.info "Starting Twenty CRM server on port ${NODE_PORT}..."
-exec node dist/main
+# Run official entrypoint (handles migrations + setup)
+bashio::log.info "Running Twenty entrypoint (migrations + setup)..."
+/opt/twenty/entrypoint.sh node dist/main

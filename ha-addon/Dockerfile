@@ -3,7 +3,7 @@ FROM twentycrm/twenty:latest AS twenty
 
 FROM ghcr.io/hassio-addons/base:19.0.0
 
-# Install PostgreSQL 16, Redis, Node.js 22
+# Install PostgreSQL 16, Redis, Node.js
 RUN apk add --no-cache \
     postgresql16 \
     postgresql16-client \
@@ -11,20 +11,25 @@ RUN apk add --no-cache \
     redis \
     nodejs \
     npm \
+    yarn \
     curl \
     bash \
     jq
 
-# Copy Twenty application from official image (also Alpine/musl based)
+# Install tsx globally (needed by Twenty's entrypoint for DB setup)
+RUN npm install -g tsx
+
+# Copy ENTIRE Twenty application from official image
 COPY --from=twenty /app /opt/twenty
+
+# Make entrypoint executable
+RUN chmod +x /opt/twenty/entrypoint.sh
 
 # Create data directories
 RUN mkdir -p /data/postgres /data/redis /data/storage \
-    && chown -R postgres:postgres /data/postgres \
-    && mkdir -p /run/postgresql \
-    && chown -R postgres:postgres /run/postgresql
+    && mkdir -p /run/postgresql
 
-# Symlink storage
+# Symlink storage so Twenty finds it where it expects
 RUN ln -sf /data/storage /opt/twenty/packages/twenty-server/.local-storage 2>/dev/null; true
 
 # Copy rootfs (s6 services + init scripts)

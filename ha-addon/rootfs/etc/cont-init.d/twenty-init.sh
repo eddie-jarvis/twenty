@@ -39,7 +39,10 @@ REDIS_URL=${REDIS_URL}
 SERVER_URL=${SERVER_URL}
 NODE_PORT=3000
 STORAGE_TYPE=local
+STORAGE_TYPE=local
 STORAGE_LOCAL_PATH=/opt/twenty/packages/twenty-server/.local-storage
+IS_BILLING_ENABLED=false
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/twenty/node_modules/.bin
 EOF
 
 # Ensure data directories exist with correct permissions (runtime, not build time)
@@ -74,8 +77,8 @@ PGCONF
 
     cat >> /data/postgres/pg_hba.conf <<PGHBA
 local   all   all                 trust
-host    all   all   127.0.0.1/32  md5
-host    all   all   ::1/128       md5
+host    all   all   127.0.0.1/32  trust
+host    all   all   ::1/128       trust
 PGHBA
 
     # Start PostgreSQL temporarily to create user and database
