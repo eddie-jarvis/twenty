@@ -1,6 +1,6 @@
 name: "Twenty CRM"
 description: "Open-source personal CRM for managing your network"
-version: "2.2.0"
+version: "2.2.1"
 slug: "twenty-crm"
 url: "https://github.com/eddie-jarvis/twenty"
 arch:
@@ -19,8 +19,7 @@ map:
     read_only: false
 startup: application
 boot: auto
-ingress: true
-ingress_port: 3000
+ingress: false
 panel_icon: "mdi:account-group"
 panel_title: "Twenty CRM"
 schema:
