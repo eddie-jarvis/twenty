@@ -42,6 +42,7 @@ STORAGE_TYPE=local
 STORAGE_TYPE=local
 STORAGE_LOCAL_PATH=/opt/twenty/packages/twenty-server/.local-storage
 IS_BILLING_ENABLED=false
+REACT_APP_SERVER_BASE_URL=${SERVER_URL}
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/twenty/node_modules/.bin
 EOF
 
