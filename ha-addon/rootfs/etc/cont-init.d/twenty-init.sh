@@ -21,12 +21,11 @@ REDIS_URL="redis://localhost:6379"
 
 # Determine SERVER_URL
 if [ -z "${SERVER_URL}" ]; then
-    if bashio::var.has_value "$(bashio::addon.ingress_url)"; then
-        SERVER_URL="http://localhost:3000"
-    else
-        SERVER_URL="http://localhost:3000"
-    fi
+    SERVER_URL="http://localhost:3000"
 fi
+
+# Remove trailing slash
+SERVER_URL="${SERVER_URL%/}"
 
 bashio::log.info "SERVER_URL: ${SERVER_URL}"
 
@@ -39,35 +38,47 @@ REDIS_URL=${REDIS_URL}
 SERVER_URL=${SERVER_URL}
 NODE_PORT=3000
 STORAGE_TYPE=local
-STORAGE_TYPE=local
 STORAGE_LOCAL_PATH=/opt/twenty/packages/twenty-server/.local-storage
 IS_BILLING_ENABLED=false
 REACT_APP_SERVER_BASE_URL=${SERVER_URL}
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/twenty/node_modules/.bin
 EOF
 
-# Ensure data directories exist with correct permissions (runtime, not build time)
+# Ensure data directories exist with correct permissions
 mkdir -p /data/postgres /data/redis /data/storage /run/postgresql
 chown -R postgres:postgres /data/postgres /run/postgresql
 
-# Check for incompatible PG version and clean up
+# FORCE CLEAN INIT: Check if database is actually working
+# If core schema exists but is incomplete, nuke it
 if [ -f /data/postgres/PG_VERSION ]; then
-    PG_DATA_VER=$(cat /data/postgres/PG_VERSION)
-    if [ "$PG_DATA_VER" != "16" ]; then
-        bashio::log.warning "PostgreSQL data was version ${PG_DATA_VER}, need 16. Reinitializing..."
+    bashio::log.info "Checking existing PostgreSQL data..."
+    
+    # Start postgres temporarily to check
+    su - postgres -s /bin/bash -c "pg_ctl -D /data/postgres -l /tmp/pg_check.log start" 2>/dev/null
+    sleep 3
+    
+    # Check if core schema has the essential table
+    SCHEMA_OK=$(su - postgres -s /bin/bash -c "psql -tAc \"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'core' AND table_name = 'user')\" default" 2>/dev/null || echo "f")
+    
+    su - postgres -s /bin/bash -c "pg_ctl -D /data/postgres stop" 2>/dev/null
+    sleep 2
+    
+    if [ "$SCHEMA_OK" != "t" ]; then
+        bashio::log.warning "Database schema is incomplete or corrupt. Reinitializing..."
         rm -rf /data/postgres/*
+        rm -f /data/.migrations_done
+    else
+        bashio::log.info "Database schema looks healthy."
     fi
 fi
 
-# Initialize PostgreSQL if first run
+# Initialize PostgreSQL if first run (or after cleanup)
 if [ ! -f /data/postgres/PG_VERSION ]; then
     bashio::log.info "First run — initializing PostgreSQL..."
-
-    # Initialize the database cluster
+    
     su - postgres -s /bin/bash -c \
         "initdb -D /data/postgres --auth=trust --encoding=UTF8 --locale=C"
 
-    # Configure PostgreSQL
     cat >> /data/postgres/postgresql.conf <<PGCONF
 listen_addresses = 'localhost'
 port = 5432
@@ -82,11 +93,9 @@ host    all   all   127.0.0.1/32  trust
 host    all   all   ::1/128       trust
 PGHBA
 
-    # Start PostgreSQL temporarily to create user and database
     su - postgres -s /bin/bash -c \
         "pg_ctl -D /data/postgres -l /tmp/pg_init.log start"
 
-    # Wait for PostgreSQL to be ready
     for i in $(seq 1 30); do
         if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
             break
@@ -94,25 +103,22 @@ PGHBA
         sleep 1
     done
 
-    # Create user and database
     su - postgres -s /bin/bash -c \
         "psql -c \"CREATE USER twenty WITH PASSWORD '${PG_DATABASE_PASSWORD}' SUPERUSER;\""
     su - postgres -s /bin/bash -c \
         "psql -c \"CREATE DATABASE \\\"default\\\" OWNER twenty;\""
 
-    # Stop temporary PostgreSQL
     su - postgres -s /bin/bash -c \
         "pg_ctl -D /data/postgres stop"
+    
+    sleep 2
 
     bashio::log.info "PostgreSQL initialized successfully."
 else
     bashio::log.info "PostgreSQL data directory exists, skipping init."
 fi
 
-# Ensure data directories have correct permissions
-chown -R postgres:postgres /data/postgres
-chown -R postgres:postgres /run/postgresql
-mkdir -p /data/redis
-mkdir -p /data/storage
+# Ensure correct permissions
+chown -R postgres:postgres /data/postgres /run/postgresql
 
 bashio::log.info "Twenty CRM initialization complete."
