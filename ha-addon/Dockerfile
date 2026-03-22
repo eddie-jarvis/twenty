@@ -37,7 +37,7 @@ COPY rootfs /
 
 # Make scripts executable
 RUN find /etc/s6-overlay/s6-rc.d -name "run" -exec chmod +x {} \; 2>/dev/null; \
-    find /etc/cont-init.d -name "*.sh" -exec chmod +x {} \; 2>/dev/null; \
+    chmod +x /etc/twenty-init.sh 2>/dev/null; \
     true
 
 ARG BUILD_ARCH
